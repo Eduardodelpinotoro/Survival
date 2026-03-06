@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EL CASO DEL ARQUITECTO · novela completa (18 capítulos + epílogo)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: #1a1e24;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+        }
+        .gamebook {
+            max-width: 700px;
+            width: 100%;
+            background: #2c3e4f;
+            border-radius: 40px 40px 28px 28px;
+            box-shadow: 0 25px 45px #000000dd;
+            border: 2px solid #4a6a8a;
+            overflow: hidden;
+        }
+        .top-bar {
+            background: #1e3142;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #3f5770;
+        }
+        .inventory-button {
+            background: #253d53;
+            border: 2px solid #6083a8;
+            border-radius: 40px;
+            padding: 6px 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #102433;
+            transition: 0.08s linear;
+            touch-action: manipulation;
+        }
+        .inventory-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #102433;
+        }
+        .inv-icon {
+            font-size: 1.8rem;
+            color: #ffd78c;
+        }
+        .inv-text {
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .inventory-panel {
+            background: #1d3143;
+            border-bottom: 3px solid #4f6f90;
+            padding: 16px 20px;
+            display: none;
+            flex-wrap: wrap;
+            gap: 16px 24px;
+            align-items: center;
+            box-shadow: inset 0 1px 6px #00000055;
+        }
+        .inventory-panel.visible {
+            display: flex;
+        }
+        .inventory-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            background: #2b4058;
+            padding: 10px 15px;
+            border-radius: 30px;
+            border: 1px solid #769dc9;
+            min-width: 90px;
+        }
+        .item-emoji {
+            font-size: 2.5rem;
+            filter: drop-shadow(2px 4px 4px black);
+        }
+        .item-label {
+            color: #f0f4fa;
+            font-size: 0.9rem;
+            font-weight: 600;
+            background: #1c3142;
+            padding: 4px 12px;
+            border-radius: 30px;
+            white-space: nowrap;
+        }
+        .chapter-tag {
+            background: #1f3345;
+            color: #d7e7ff;
+            padding: 12px 22px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #3b5773;
+        }
+        .novel-area {
+            background: #14222f;
+            padding: 32px 28px 40px;
+            color: #ecf5ff;
+            font-size: 1.18rem;
+            line-height: 1.7;
+            border-bottom: 2px solid #1f3345;
+            max-height: 500px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #527a9e #1c2e3f;
+        }
+        .novel-area::-webkit-scrollbar {
+            width: 8px;
+        }
+        .novel-area::-webkit-scrollbar-track {
+            background: #1c2e3f;
+        }
+        .novel-area::-webkit-scrollbar-thumb {
+            background: #527a9e;
+            border-radius: 10px;
+        }
+        .options-area {
+            background: #11212e;
+            padding: 24px 22px 28px;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            border-top: 2px solid #2a4055;
+        }
+        .choice-btn {
+            background: #263f56;
+            border: none;
+            border-bottom: 5px solid #102433;
+            color: #f5fbff;
+            font-size: 1.05rem;
+            font-weight: 500;
+            padding: 14px 20px;
+            border-radius: 50px;
+            box-shadow: 0 6px 0 #0d1f2e;
+            transition: 0.06s linear;
+            cursor: pointer;
+            touch-action: manipulation;
+            flex: 1 1 180px;
+            min-width: 150px;
+            text-align: center;
+            line-height: 1.3;
+        }
+        .choice-btn:active {
+            transform: translateY(5px);
+            border-bottom-width: 2px;
+            background: #1d3348;
+        }
+        .footer {
+            background: #1c2b39;
+            padding: 14px 20px 16px;
+            text-align: center;
+            border-top: 2px solid #38536d;
+        }
+        .restart-btn {
+            background: #324252;
+            border: 1px solid #7089a8;
+            color: #ffefd3;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-bottom: 5px solid #1c2938;
+            cursor: pointer;
+            display: inline-block;
+            min-width: 220px;
+        }
+        .restart-btn:active {
+            transform: translateY(5px);
+            border-bottom-width: 2px;
+        }
+        .footnote {
+            color: #5f7c9c;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="gamebook">
+    <div class="top-bar">
+        <div class="inventory-button" id="inventoryToggle">
+            <span class="inv-icon">📦</span>
+            <span class="inv-text">pruebas</span>
+        </div>
+    </div>
+
+    <div class="inventory-panel" id="inventoryPanel"></div>
+
+    <div class="chapter-tag" id="chapterDisplay">LA LLAMADA DE SALEM</div>
+    
+    <div class="novel-area" id="novelText"></div>
+
+    <div class="options-area" id="optionsContainer"></div>
+
+    <div class="footer">
+        <div class="restart-btn" id="restartButton">↻ REINICIAR INVESTIGACIÓN</div>
+        <div class="footnote">18 capítulos + epílogo · Caso del Arquitecto</div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        let state = {
+            step: 1,
+            inventory: {
+                cartaLaura: false,
+                informeToxico: false,
+                transferencias: false,
+                mensajesMovil: false,
+                reciboKetamina: false,
+                cartaObsesion: false,
+                diarioRichard: false,
+                facturaHotel: false
+            },
+            sospechosos: {
+                david: { mentiras: 0, pruebas: 0 },
+                richard: { mentiras: 0, pruebas: 0 },
+                laura: { mentiras: 0, pruebas: 0 }
+            }
+        };
+
+        const chapterDisplay = document.getElementById('chapterDisplay');
+        const novelText = document.getElementById('novelText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const inventoryPanel = document.getElementById('inventoryPanel');
+        const inventoryToggle = document.getElementById('inventoryToggle');
+        const restartBtn = document.getElementById('restartButton');
+
+        inventoryToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            inventoryPanel.classList.toggle('visible');
+            updateInventoryPanel();
+        });
+
+        function addItem(item) {
+            if (item === 'cartaLaura') state.inventory.cartaLaura = true;
+            if (item === 'informeToxico') state.inventory.informeToxico = true;
+            if (item === 'transferencias') state.inventory.transferencias = true;
+            if (item === 'mensajesMovil') state.inventory.mensajesMovil = true;
+            if (item === 'reciboKetamina') state.inventory.reciboKetamina = true;
+            if (item === 'cartaObsesion') state.inventory.cartaObsesion = true;
+            if (item === 'diarioRichard') state.inventory.diarioRichard = true;
+            if (item === 'facturaHotel') state.inventory.facturaHotel = true;
+            if (inventoryPanel.classList.contains('visible')) updateInventoryPanel();
+        }
+
+        function addMentira(sospechoso) {
+            if (sospechoso === 'david') state.sospechosos.david.mentiras++;
+            if (sospechoso === 'richard') state.sospechosos.richard.mentiras++;
+            if (sospechoso === 'laura') state.sospechosos.laura.mentiras++;
+        }
+
+        function addPrueba(sospechoso) {
+            if (sospechoso === 'david') state.sospechosos.david.pruebas++;
+            if (sospechoso === 'richard') state.sospechosos.richard.pruebas++;
+            if (sospechoso === 'laura') state.sospechosos.laura.pruebas++;
+        }
+
+        function updateInventoryPanel() {
+            let html = '<div class="inventory-item"><span class="item-emoji">📋</span><span class="item-label">Caso 0893</span></div>';
+            if (state.inventory.cartaLaura) html += '<div class="inventory-item"><span class="item-emoji">💌</span><span class="item-label">Carta de Laura</span></div>';
+            if (state.inventory.informeToxico) html += '<div class="inventory-item"><span class="item-emoji">🧪</span><span class="item-label">Informe toxicológico</span></div>';
+            if (state.inventory.transferencias) html += '<div class="inventory-item"><span class="item-emoji">💰</span><span class="item-label">Transferencias</span></div>';
+            if (state.inventory.mensajesMovil) html += '<div class="inventory-item"><span class="item-emoji">📱</span><span class="item-label">Mensajes</span></div>';
+            if (state.inventory.reciboKetamina) html += '<div class="inventory-item"><span class="item-emoji">🧴</span><span class="item-label">Recibo Ketamina</span></div>';
+            if (state.inventory.cartaObsesion) html += '<div class="inventory-item"><span class="item-emoji">💔</span><span class="item-label">Carta obsesión</span></div>';
+            if (state.inventory.diarioRichard) html += '<div class="inventory-item"><span class="item-emoji">📓</span><span class="item-label">Diario de Richard</span></div>';
+            if (state.inventory.facturaHotel) html += '<div class="inventory-item"><span class="item-emoji">🏨</span><span class="item-label">Factura hotel</span></div>';
+            inventoryPanel.innerHTML = html;
+        }
+
+        const chapters = {
+            1: {
+                title: 'LA LLAMADA DE SALEM',
+                text: 'Boston, Massachusetts. Despacho del FBI. 10 de marzo de 2025. 9:15 AM.\n\nEl agente especial Daniel Cross llevaba semanas sin casos importantes cuando el teléfono sonó. Era un viejo conocido, el detective Victor Ramos del departamento de policía de Salem.\n\n—Daniel, soy Victor. Necesito tu ayuda.\n\n—¿Qué pasa?\n\n—Dos muertos. Un arquitecto, Michael Stone, murió en accidente de coche hace tres meses. Oficialmente cerrado. Pero su madre no descansa. Y ahora ha aparecido un periodista muerto, Thomas Reed, que estaba investigando el caso.\n\n—¿Conexión?\n\n—Los análisis de sangre. Ambos tenían ketamina. Alguien los drogó.\n\n—¿Sospechosos?\n\n—Tres. Richard Stone, el hermano de Michael y socio en la empresa. David Morrison, editor del periódico y ex pareja de Thomas. Y Laura Reed, la exmujer de Thomas. Todos tienen móvil. Todos mienten.\n\nDaniel asintió.\n\n—Voy para allá. Dile a María Torres que nos vemos en Salem.',
+                options: [
+                    { text: '🚗 Viajar a Salem', next: 2 }
+                ]
+            },
+            2: {
+                title: 'SALEM',
+                text: 'Salem, Massachusetts. 10 de marzo de 2025. 11:30 AM. Comisaría de Salem.\n\nDaniel llegó a la comisaría y encontró a Victor Ramos esperándole. María llegó minutos después.\n\n—Tres sospechosos —dijo Victor, extendiendo carpetas sobre la mesa—. Richard Stone, el hermano. Tenía problemas con Michael por el control de la empresa. Michael quería denunciar los sobornos. Richard quería taparlo.\n\n—¿Pruebas?\n\n—Ninguna directa. Pero su coartada es débil. Dice que estaba en casa con su mujer, pero ella no lo confirma del todo.\n\n—¿El segundo?\n\n—David Morrison. Editor del Salem Chronicle. Era la pareja de Thomas Reed. Thomas lo dejó hace meses. David no lo superó. Lo acosaba, lo amenazaba. Y cuando Thomas empezó a investigar el caso de Michael Stone, David intentó detenerlo.\n\n—¿Y el tercero?\n\n—Laura Reed. La exmujer de Thomas. Divorciados desde hace cinco años, pero mantenían contacto. Tenía una hija con él. Y según algunas fuentes, la relación no era tan buena como parecía. Thomas le debía dinero. Mucho dinero.',
+                options: [
+                    { text: '🔍 Interrogar a Richard Stone', next: 3 },
+                    { text: '🔍 Interrogar a David Morrison', next: 4 },
+                    { text: '🔍 Interrogar a Laura Reed', next: 5 },
+                    { text: '🏢 Ir al piso de Thomas Reed', next: 6 }
+                ]
+            },
+            3: {
+                title: 'EL HERMANO',
+                text: 'Salem, 10 de marzo. 2:30 PM. Stone & Associates.\n\nRichard Stone los recibió en su despacho. Traje caro, sonrisa de político, ojos inquietos.\n\n—Agente Cross —dijo, tendiendo la mano—. ¿En qué puedo ayudarle?\n\n—Su hermano, Michael. Iba a denunciar algo, ¿verdad?\n\nLa sonrisa se tensó.\n\n—Michael era... complicado. Tenía ideas, a veces paranoicas.\n\n—¿Paranoicas? ¿Como los sobornos?\n\n—Eso eran invenciones suyas.\n\n—¿Dónde estaba la noche del accidente?\n\n—En casa. Con mi mujer.\n\n—Ella dice que salió una hora.\n\n—Fui a comprar tabaco.\n\n—¿A las diez de la noche?\n\n—Tengo insomnio.\n\nMaría tomaba notas. Daniel lo miró fijamente.\n\n—Miente —dijo en voz baja.\n\n—¿Perdón?\n\n—Nada. Gracias por su tiempo.',
+                options: [
+                    { text: '🔍 Interrogar a David Morrison', next: 4 },
+                    { text: '🔍 Interrogar a Laura Reed', next: 5 },
+                    { text: '🏢 Ir al piso de Thomas', next: 6 }
+                ],
+                onEnter: () => { addMentira('richard'); }
+            },
+            4: {
+                title: 'EL EDITOR',
+                text: 'Salem, 11 de marzo. 10:00 AM. Salem Chronicle.\n\nDavid Morrison era un hombre de cincuenta años, elegante, con ojeras profundas.\n\n—Thomas era un gran periodista —dijo—. Esto es una pérdida terrible.\n\n—¿Cuándo habló con él por última vez?\n\n—Días antes de morir. Discutimos.\n\n—¿Por qué?\n\n—Por su obsesión con el caso Stone. Le dije que lo dejara, que era peligroso.\n\n—¿O por celos?\n\nDavid enmudeció.\n\n—Tuvieron una relación, ¿no? Él la terminó. Usted no lo superó.\n\n—Eso es asunto privado.\n\n—¿Dónde estaba la noche que murió?\n\n—En mi casa. Solo.\n\n—¿Alguien puede confirmarlo?\n\n—No.\n\nDaniel asintió. Otra coartada débil.',
+                options: [
+                    { text: '🔍 Interrogar a Richard Stone', next: 3 },
+                    { text: '🔍 Interrogar a Laura Reed', next: 5 },
+                    { text: '🏢 Ir al piso de Thomas', next: 6 }
+                ],
+                onEnter: () => { addMentira('david'); }
+            },
+            5: {
+                title: 'LA EXMUJER',
+                text: 'Salem, 11 de marzo. 1:00 PM. Derby Street Cafe.\n\nLaura Reed era una mujer de cuarenta años, morena, bien vestida, con una expresión tensa.\n\n—Thomas y yo nos divorciamos hace años —dijo—. Pero éramos amigos. Por nuestra hija.\n\n—¿Cuándo habló con él por última vez?\n\n—Una semana antes de morir. Estaba asustado.\n\n—¿Por qué?\n\n—Por su investigación. Alguien lo amenazaba.\n\n—¿Quién?\n\n—No lo dijo. Pero mencionó a David. Y a Richard Stone.\n\n—¿Y usted? ¿Tenía algún problema con él?\n\nLaura dudó.\n\n—Me debía dinero. Mucho. Pero no lo mataría por eso.\n\n—¿Dónde estaba la noche que murió?\n\n—En casa. Con mi hija.\n\n—¿Su hija puede confirmarlo?\n\n—Tiene doce años. No creo que su testimonio valga.\n\nDaniel asintió. Otra coartada sin confirmar.',
+                options: [
+                    { text: '🔍 Interrogar a Richard Stone', next: 3 },
+                    { text: '🔍 Interrogar a David Morrison', next: 4 },
+                    { text: '🏢 Ir al piso de Thomas', next: 6 }
+                ],
+                onEnter: () => { addMentira('laura'); }
+            },
+            6: {
+                title: 'EL PISO DE THOMAS REED',
+                text: 'Salem, 11 de marzo. 4:00 PM. Federal Street, 245.\n\nEl piso de Thomas estaba precintado. Victor consiguió la llave.\n\n—Registrad todo —dijo Daniel—. Buscad pruebas.\n\nEn el dormitorio, María encontró una libreta.\n\n"David me amenazó hoy. Dice que si publico lo de Stone, arruinará mi carrera. Laura también me llamó. Quiere el dinero que le debo. Y Richard Stone me ofreció dinero para que pare. Todos quieren algo. Todos me presionan."\n\nEn un cajón, una carta de Laura, más antigua.\n\n"Thomas: Necesito el dinero. Si no me pagas, haré pública nuestra relación. La gente sabrá lo que me hiciste."\n\n—Pruebas —dijo Daniel—. Todos tenían motivos.',
+                options: [
+                    { text: '📂 Leer la libreta', next: 7 },
+                    { text: '💌 Leer la carta de Laura', next: 7 }
+                ],
+                onEnter: () => { addItem('cartaLaura'); }
+            },
+            7: {
+                title: 'LAS PRUEBAS',
+                text: 'Salem, 12 de marzo. 10:00 AM. Comisaría.\n\nVictor reunió a Daniel y María.\n\n—He conseguido más información. Los registros de la farmacia veterinaria. Alguien compró ketamina usando el nombre de Michael Stone, una semana antes de su muerte.\n\n—¿Quién?\n\n—El vendedor no lo recuerda. Pero pagó en efectivo. Y la farmacia tiene cámaras de seguridad.\n\n—¿Conseguiste las grabaciones?\n\n—Sí. Estoy revisándolas.\n\nMaría puso su ordenador sobre la mesa.\n\n—Yo he estado revisando los mensajes del móvil de Thomas. Encontre esto.\n\nMostró la pantalla. Un mensaje de David Morrison: "Si publicas eso, te juro que te arrepentirás. No sabes de lo que soy capaz."\n\nOtro mensaje, de Richard Stone: "Podemos llegar a un acuerdo. Hay dinero de por medio. No seas tonto."\n\nY otro, de Laura Reed: "Me debes 50.000 dólares. Si no pagas, hablaré."\n\n—Todos tenían motivo —dijo Daniel.\n\n—Y todos mintieron en algo.',
+                options: [
+                    { text: '🚢 Ir a la farmacia', next: 8 },
+                    { text: '🔍 Revisar las coartadas', next: 9 },
+                    { text: '📞 Interrogar de nuevo a los sospechosos', next: 10 }
+                ],
+                onEnter: () => { addItem('mensajesMovil'); }
+            },
+            8: {
+                title: 'LA FARMACIA',
+                text: 'Salem, 12 de marzo. 3:00 PM. Harbor Veterinary Pharmacy.\n\nEl dueño, un hombre mayor, les mostró las grabaciones.\n\n—Aquí está —dijo, señalando la pantalla—. La compra de ketamina.\n\nDaniel y María vieron la imagen. Un hombre con gafas de sol y gorra entraba, pagaba en efectivo y salía rápidamente.\n\n—¿Puede identificar quién es?\n\n—Con esto, no.\n\nPero al avanzar la grabación, vieron algo más. El hombre, al salir, se quitó las gafas un momento. La cara era reconocible.\n\n—David Morrison —dijo María.\n\n—¿Segura?\n\n—Completamente.\n\nDaniel asintió. Una prueba sólida contra David.',
+                options: [
+                    { text: '🔍 Seguir investigando', next: 9 }
+                ],
+                onEnter: () => { addItem('reciboKetamina'); addPrueba('david'); }
+            },
+            9: {
+                title: 'LAS COARTADAS',
+                text: 'Salem, 13 de marzo. 11:00 AM. Domicilio de Richard Stone.\n\nVolvieron a hablar con la mujer de Richard. Esta vez, María fue más directa.\n\n—Señora Stone, su marido la engaña. Lo sabemos. Y usted lo encubre. Pero si no nos dice la verdad, podría ser cómplice de asesinato.\n\nLa mujer rompió a llorar.\n\n—Él no mató a nadie. Estaba con su amante. En un hotel.\n\n—¿Qué hotel?\n\n—El Salem Inn. La noche del accidente.\n\nVictor llamó al hotel. Confirmaron la reserva a nombre de Richard Stone. Y había una mujer con él.\n\n—Coartada confirmada —dijo Daniel—. Richard queda descartado.\n\nPero al revisar el registro, vieron algo más. Laura Reed también había estado en ese hotel. La misma noche.\n\n—¿Laura? ¿Qué hacía ella allí?\n\n—No lo sé. Pero habrá que preguntarle.',
+                options: [
+                    { text: '🔍 Interrogar a Laura', next: 11 }
+                ],
+                onEnter: () => { addItem('facturaHotel'); }
+            },
+            10: {
+                title: 'SEGUNDO INTERROGATORIO',
+                text: 'Salem, 13 de marzo. 4:00 PM. Comisaría.\n\nCitaron a los tres sospechosos por separado.\n\nPrimero, Richard Stone. Le mostraron la factura del hotel.\n\n—Estaba con mi amante. Ya lo sé. No maté a mi hermano.\n\n—¿Y qué sabe de Laura Reed en el mismo hotel?\n\nRichard palideció.\n\n—¿Laura? No... no lo sabía.\n\nSegundo, David Morrison. Le mostraron la grabación de la farmacia.\n\n—Compré ketamina, sí. Para mi perro. Estaba enfermo.\n\n—Su perro murió hace dos años, según el veterinario.\n\nDavid enmudeció.\n\nTercero, Laura Reed. Le mostraron la factura del hotel.\n\n—¿Qué hacía usted allí la noche del accidente?\n\n—Tenía una cita.\n\n—¿Con quién?\n\n—Con... con David Morrison.\n\nDaniel y María se miraron.\n\n—¿David? ¿El ex de Thomas?\n\n—Sí. Era un secreto. Nadie podía saberlo.',
+                options: [
+                    { text: '🔍 Seguir investigando', next: 12 }
+                ],
+                onEnter: () => { addMentira('david'); addMentira('laura'); }
+            },
+            11: {
+                title: 'EL INTERROGATORIO DE LAURA',
+                text: 'Salem, 14 de marzo. 10:00 AM. Comisaría.\n\nLaura Reed llegó sola, sin abogado.\n\n—¿Qué hacía usted en el Salem Inn la noche del accidente?\n\n—Ya lo dije. Una cita.\n\n—¿Con quién?\n\n—Con David Morrison.\n\n—¿David? ¿El ex de Thomas?\n\n—Sí. Nos veíamos en secreto. Desde hace meses. Thomas no podía saberlo.\n\n—¿Y Thomas lo descubrió?\n\nLaura dudó.\n\n—Sí. Unas semanas antes de morir. Me amenazó con contarlo todo si no le perdonaba la deuda.\n\n—¿Y usted qué hizo?\n\n—Nada. Pero David... David se puso furioso. Dijo que Thomas no podía hacerle eso.\n\n—¿Cree que David pudo matarlo?\n\n—No lo sé. Pero David es obsesivo. Celoso. Capaz de cualquier cosa.',
+                options: [
+                    { text: '🔍 Interrogar a David', next: 12 }
+                ]
+            },
+            12: {
+                title: 'EL REGISTRO',
+                text: 'Salem, 14 de marzo. 4:00 PM. Piso de David Morrison.\n\nCon una orden judicial, registraron el piso de David. Encontraron varias cosas.\n\nUna caja con jeringuillas usadas. Una libreta con anotaciones. Y una carta, nunca enviada, dirigida a Thomas.\n\n"Thomas: No puedes dejarme. Te necesito. Si no eres mío, no serás de nadie. Lo juro."\n\n—Obsesión —dijo María.\n\nEn la libreta, fechas, cantidades, y un nombre: Michael Stone.\n\n"20 de noviembre. Lo hice. Lo esperé, lo drogué, lo maté. Parecía un accidente. Nadie lo sabrá nunca."\n\n—La confesión —dijo Daniel.\n\nY al final, una entrada más reciente:\n\n"5 de diciembre. Thomas lo sabe. Me ha llamado. Dice que me denunciará. No puedo permitirlo. Mañana... mañana tendré que hacerlo."\n\n—Prueba definitiva.',
+                options: [
+                    { text: '🔒 Acusar a David Morrison', next: 13 },
+                    { text: '🔒 Acusar a Richard Stone (sin pruebas)', next: 14 },
+                    { text: '🔒 Acusar a Laura Reed (sin pruebas)', next: 15 }
+                ],
+                onEnter: () => { addItem('cartaObsesion'); addItem('diarioRichard'); addPrueba('david'); }
+            },
+            13: {
+                title: 'LA ACUSACIÓN (DAVID)',
+                text: 'Salem, 15 de marzo. 10:00 AM. Comisaría.\n\nDaniel enfrentó a David Morrison con todas las pruebas: la grabación de la farmacia, la ketamina, la libreta, la carta obsesiva.\n\n—Todo esto es... es falso. Alguien lo plantó.\n\n—Su letra. Sus huellas. Sus mentiras.\n\nDavid rompió a llorar.\n\n—Lo hice por amor. Thomas iba a dejarme. Iba a denunciarme. No podía permitirlo.\n\n—¿Y Michael Stone?\n\n—Era un obstáculo. Si moría, Thomas dejaría de investigar. Pero no funcionó. Thomas siguió.\n\n—Así que lo mató también.\n\n—Sí. Lo siento. Lo siento mucho.\n\nDaniel lo miró sin piedad.\n\n—Tardará en salir. Si es que sale.',
+                options: [
+                    { text: '📖 VER FINAL', next: 17 }
+                ]
+            },
+            14: {
+                title: 'LA ACUSACIÓN (RICHARD)',
+                text: 'Salem, 15 de marzo. 10:00 AM. Comisaría.\n\nDaniel acusó a Richard Stone sin pruebas suficientes. Solo por corazonadas.\n\n—No maté a mi hermano —dijo Richard—. Tenía una amante, lo sé. Pero no soy un asesino.\n\n—Sus transferencias. Sus mentiras.\n\n—Las transferencias son legales. Las mentiras, por mi matrimonio. Nada más.\n\nDos días después, el caso se vino abajo. Un juez desestimó las pruebas. Richard quedó libre.\n\nY David Morrison, el verdadero asesino, también.\n\n—Lo hicimos mal —dijo María—. Acusamos al equivocado.\n\nDaniel asintió, con amargura.\n\n—El caso quedará sin resolver.',
+                options: [
+                    { text: '📖 VER FINAL', next: 18 }
+                ]
+            },
+            15: {
+                title: 'LA ACUSACIÓN (LAURA)',
+                text: 'Salem, 15 de marzo. 10:00 AM. Comisaría.\n\nDaniel acusó a Laura Reed. La deuda, el hotel, las mentiras.\n\n—Yo no maté a Thomas —dijo Laura, llorando—. Le debía dinero, sí. Pero lo quería. Era el padre de mi hija.\n\n—Sus mentiras. Su coartada.\n\n—Mi coartada es David. Estaba con él. Pero no podía decirlo. Era un secreto.\n\nDavid confirmó la historia. Estuvieron juntos. Laura no pudo matar a Thomas.\n\nEl caso se vino abajo. Laura, libre. David, también.\n\n—Ella no fue —dijo María—. Y ahora el verdadero asesino escapará.\n\nDaniel asintió, derrotado.',
+                options: [
+                    { text: '📖 VER FINAL', next: 18 }
+                ]
+            },
+            16: {
+                title: 'LA VERDAD',
+                text: 'Salem, 16 de marzo. 10:00 AM. Comisaría.\n\nCon todas las pruebas reunidas, Daniel volvió a interrogar a David.\n\n—La farmacia. La ketamina. La carta. El diario. Todo apunta a usted.\n\n—Son mentiras.\n\n—¿Y esto? —Daniel mostró un mensaje del móvil de Thomas, que no habían visto antes—. "David me confesó lo de Michael. Dice que fue un accidente, que no quería matarlo. Pero lo hizo. Y ahora me amenaza."\n\nDavid palideció.\n\n—Eso... eso es falso.\n\n—El móvil de Thomas. Verificado por la compañía. No es falso.\n\nDavid bajó la cabeza.\n\n—Lo hice. Los maté a los dos. Pero no quería. Las cosas se fueron de control.\n\n—Siempre se controlan. Cuando se quiere.',
+                options: [
+                    { text: '📖 VER FINAL', next: 17 }
+                ]
+            },
+            17: {
+                title: 'EPÍLOGO · JUSTICIA',
+                text: 'Boston, 15 de junio de 2025. Despacho de Daniel.\n\nDavid Morrison fue condenado a cadena perpetua. Dos asesinatos, premeditación, alevosía. Nunca saldrá.\n\nRichard Stone fue imputado por corrupción. Su empresa, intervenida. Los políticos sobornados, salpicados.\n\nLaura Reed recuperó a su hija y empezó una nueva vida.\n\nMargaret Stone, la madre de Michael, escribió a Daniel:\n\n"Gracias por no rendirse. Mi hijo puede descansar en paz."\n\nDaniel guardó la carta. María entró en el despacho.\n\n—Buen trabajo, socio.\n\n—Tú también.\n\n—¿Próximo caso?\n\n—Siempre.\n\nFIN',
+                options: [
+                    { text: '🔁 VOLVER A EMPEZAR', final: true }
+                ]
+            },
+            18: {
+                title: 'EPÍLOGO · FRACASO',
+                text: 'Boston, 15 de junio de 2025. Despacho de Daniel.\n\nEl caso quedó abierto. Sin resolver.\n\nDavid Morrison, el verdadero asesino, nunca fue procesado. Las pruebas contra él se perdieron, o nunca se recogieron a tiempo.\n\nRichard Stone siguió con su empresa. Los sobornos, nunca denunciados.\n\nLaura Reed, hundida, perdió la custodia de su hija.\n\nMargaret Stone, la madre de Michael, escribió a Daniel:\n\n"Creí en usted. Me equivoqué."\n\nDaniel guardó la carta. María entró en el despacho.\n\n—No fue culpa tuya.\n\n—Sí lo fue. Acusamos al equivocado.\n\n—Aprendemos.\n\n—A veces no basta.\n\nFIN',
+                options: [
+                    { text: '🔁 VOLVER A EMPEZAR', final: true }
+                ]
+            }
+        };
+
+        function loadChapter(step) {
+            const chap = chapters[step];
+            if (!chap) return;
+
+            chapterDisplay.innerText = chap.title;
+            novelText.innerText = chap.text;
+            if (chap.onEnter) chap.onEnter();
+
+            optionsContainer.innerHTML = '';
+            chap.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.innerText = opt.text;
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+
+                    if (opt.final) {
+                        restartGame();
+                        return;
+                    }
+
+                    const nextStep = opt.next !== undefined ? opt.next : step + 1;
+                    state.step = nextStep;
+                    loadChapter(state.step);
+                });
+                optionsContainer.appendChild(btn);
+            });
+
+            inventoryPanel.classList.remove('visible');
+        }
+
+        function restartGame() {
+            state = {
+                step: 1,
+                inventory: {
+                    cartaLaura: false,
+                    informeToxico: false,
+                    transferencias: false,
+                    mensajesMovil: false,
+                    reciboKetamina: false,
+                    cartaObsesion: false,
+                    diarioRichard: false,
+                    facturaHotel: false
+                },
+                sospechosos: {
+                    david: { mentiras: 0, pruebas: 0 },
+                    richard: { mentiras: 0, pruebas: 0 },
+                    laura: { mentiras: 0, pruebas: 0 }
+                }
+            };
+            loadChapter(1);
+        }
+
+        restartBtn.addEventListener('click', restartGame);
+        loadChapter(1);
+    })();
+</script>
+</body>
+</html>
