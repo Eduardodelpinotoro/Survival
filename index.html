@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EL CASO DEL ARQUITECTO · novela completa (18 capítulos + epílogo)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: #1a1e24;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+        }
+        .gamebook {
+            max-width: 700px;
+            width: 100%;
+            background: #2c3e4f;
+            border-radius: 40px 40px 28px 28px;
+            box-shadow: 0 25px 45px #000000dd;
+            border: 2px solid #4a6a8a;
+            overflow: hidden;
+        }
+        .top-bar {
+            background: #1e3142;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #3f5770;
+        }
+        .time-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .time-bg {
+            width: 140px;
+            height: 18px;
+            background: #1f364a;
+            border-radius: 30px;
+            border: 1px solid #4a6a8a;
+            box-shadow: inset 0 2px 4px #0b1a27;
+        }
+        .time-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #3e6b9e, #5f9ea0);
+            border-radius: 30px;
+            transition: width 0.2s;
+        }
+        .time-number {
+            color: #f2e0c0;
+            font-weight: 800;
+            font-size: 1.4rem;
+            min-width: 60px;
+            text-shadow: 0 2px 3px black;
+        }
+        .inventory-button {
+            background: #253d53;
+            border: 2px solid #6083a8;
+            border-radius: 40px;
+            padding: 6px 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #102433;
+            transition: 0.08s linear;
+            touch-action: manipulation;
+        }
+        .inventory-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #102433;
+        }
+        .inv-icon {
+            font-size: 1.8rem;
+            color: #ffd78c;
+        }
+        .inv-text {
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .inventory-panel {
+            background: #1d3143;
+            border-bottom: 3px solid #4f6f90;
+            padding: 16px 20px;
+            display: none;
+            flex-wrap: wrap;
+            gap: 16px 24px;
+            align-items: center;
+            box-shadow: inset 0 1px 6px #00000055;
+        }
+        .inventory-panel.visible {
+            display: flex;
+        }
+        .inventory-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            background: #2b4058;
+            padding: 10px 15px;
+            border-radius: 30px;
+            border: 1px solid #769dc9;
+            min-width: 90px;
+        }
+        .item-emoji {
+            font-size: 2.5rem;
+            filter: drop-shadow(2px 4px 4px black);
+        }
+        .item-label {
+            color: #f0f4fa;
+            font-size: 0.9rem;
+            font-weight: 600;
+            background: #1c3142;
+            padding: 4px 12px;
+            border-radius: 30px;
+            white-space: nowrap;
+        }
+        .chapter-tag {
+            background: #1f3345;
+            color: #d7e7ff;
+            padding: 12px 22px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #3b5773;
+        }
+        .novel-area {
+            background: #14222f;
+            padding: 32px 28px 40px;
+            color: #ecf5ff;
+            font-size: 1.18rem;
+            line-height: 1.7;
+            border-bottom: 2px solid #1f3345;
+            max-height: 500px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #527a9e #1c2e3f;
+        }
+        .novel-area::-webkit-scrollbar {
+            width: 8px;
+        }
+        .novel-area::-webkit-scrollbar-track {
+            background: #1c2e3f;
+        }
+        .novel-area::-webkit-scrollbar-thumb {
+            background: #527a9e;
+            border-radius: 10px;
+        }
+        .options-area {
+            background: #11212e;
+            padding: 24px 22px 28px;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            border-top: 2px solid #2a4055;
+        }
+        .choice-btn {
+            background: #263f56;
+            border: none;
+            border-bottom: 5px solid #102433;
+            color: #f5fbff;
+            font-size: 1.05rem;
+            font-weight: 500;
+            padding: 14px 20px;
+            border-radius: 50px;
+            box-shadow: 0 6px 0 #0d1f2e;
+            transition: 0.06s linear;
+            cursor: pointer;
+            touch-action: manipulation;
+            flex: 1 1 180px;
+            min-width: 150px;
+            text-align: center;
+            line-height: 1.3;
+        }
+        .choice-btn:active {
+            transform: translateY(5px);
+            border-bottom-width: 2px;
+            background: #1d3348;
+        }
+        .footer {
+            background: #1c2b39;
+            padding: 14px 20px 16px;
+            text-align: center;
+            border-top: 2px solid #38536d;
+        }
+        .restart-btn {
+            background: #324252;
+            border: 1px solid #7089a8;
+            color: #ffefd3;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-bottom: 5px solid #1c2938;
+            cursor: pointer;
+            display: inline-block;
+            min-width: 220px;
+        }
+        .restart-btn:active {
+            transform: translateY(5px);
+            border-bottom-width: 2px;
+        }
+        .footnote {
+            color: #5f7c9c;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="gamebook">
+    <div class="top-bar">
+        <div class="time-section">
+            <div class="time-bg"><div class="time-fill" id="timeFill" style="width:100%"></div></div>
+            <div class="time-number" id="timeValue">168h</div>
+        </div>
+        <div class="inventory-button" id="inventoryToggle">
+            <span class="inv-icon">📦</span>
+            <span class="inv-text">pruebas</span>
+        </div>
+    </div>
+
+    <div class="inventory-panel" id="inventoryPanel"></div>
+
+    <div class="chapter-tag" id="chapterDisplay">LA LLAMADA DE BARCELONA</div>
+    
+    <div class="novel-area" id="novelText"></div>
+
+    <div class="options-area" id="optionsContainer"></div>
+
+    <div class="footer">
+        <div class="restart-btn" id="restartButton">↻ REINICIAR INVESTIGACIÓN</div>
+        <div class="footnote">18 capítulos + epílogo · Caso del Arquitecto</div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        let state = {
+            health: 100,
+            maxHealth: 100,
+            tiempo: 168,
+            step: 1,
+            inventory: {
+                cartaSilvia: false,
+                informeToxico: false,
+                transferencias: false,
+                mensajesMovil: false,
+                reciboXilacina: false,
+                cartaVicente: false
+            },
+            pistas: {
+                silviaHablado: false,
+                vidalContactado: false,
+                enricDescartado: false
+            }
+        };
+
+        const timeFill = document.getElementById('timeFill');
+        const timeValue = document.getElementById('timeValue');
+        const chapterDisplay = document.getElementById('chapterDisplay');
+        const novelText = document.getElementById('novelText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const inventoryPanel = document.getElementById('inventoryPanel');
+        const inventoryToggle = document.getElementById('inventoryToggle');
+        const restartBtn = document.getElementById('restartButton');
+
+        inventoryToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            inventoryPanel.classList.toggle('visible');
+            updateInventoryPanel();
+        });
+
+        function updateUI() {
+            const percent = (state.tiempo / 168) * 100;
+            timeFill.style.width = percent + '%';
+            timeValue.innerText = state.tiempo + 'h';
+            
+            if (state.health <= 0) {
+                showGameOver();
+            }
+        }
+
+        function restarTiempo(horas) {
+            state.tiempo = Math.max(0, state.tiempo - horas);
+            if (state.tiempo <= 0) {
+                showTimeOut();
+            }
+        }
+
+        function addItem(item) {
+            if (item === 'cartaSilvia') state.inventory.cartaSilvia = true;
+            if (item === 'informeToxico') state.inventory.informeToxico = true;
+            if (item === 'transferencias') state.inventory.transferencias = true;
+            if (item === 'mensajesMovil') state.inventory.mensajesMovil = true;
+            if (item === 'reciboXilacina') state.inventory.reciboXilacina = true;
+            if (item === 'cartaVicente') state.inventory.cartaVicente = true;
+            if (inventoryPanel.classList.contains('visible')) updateInventoryPanel();
+        }
+
+        function updateInventoryPanel() {
+            let html = '<div class="inventory-item"><span class="item-emoji">📋</span><span class="item-label">Caso 0893</span></div>';
+            if (state.inventory.cartaSilvia) html += '<div class="inventory-item"><span class="item-emoji">💌</span><span class="item-label">Carta Silvia</span></div>';
+            if (state.inventory.informeToxico) html += '<div class="inventory-item"><span class="item-emoji">🧪</span><span class="item-label">Informe toxicológico</span></div>';
+            if (state.inventory.transferencias) html += '<div class="inventory-item"><span class="item-emoji">💰</span><span class="item-label">Transferencias</span></div>';
+            if (state.inventory.mensajesMovil) html += '<div class="inventory-item"><span class="item-emoji">📱</span><span class="item-label">Mensajes</span></div>';
+            if (state.inventory.reciboXilacina) html += '<div class="inventory-item"><span class="item-emoji">🧴</span><span class="item-label">Recibo Xilacina</span></div>';
+            if (state.inventory.cartaVicente) html += '<div class="inventory-item"><span class="item-emoji">💔</span><span class="item-label">Carta de Vicente</span></div>';
+            inventoryPanel.innerHTML = html;
+        }
+
+        function showGameOver() {
+            chapterDisplay.innerText = '❌ CASO CERRADO · AGENTE CAÍDO';
+            novelText.innerText = 'El cuerpo de Daniel Cross yace en el puerto de Barcelona. El caso del arquitecto quedará para siempre sin resolver.';
+            optionsContainer.innerHTML = '';
+        }
+
+        function showTimeOut() {
+            chapterDisplay.innerText = '⏰ TIEMPO AGOTADO';
+            novelText.innerText = 'Siete días. Daniel ha tenido siete días y no ha conseguido las pruebas suficientes. El archivo del caso ha sido destruido. El asesino de Jordi Costa y Mateo Vidal nunca será encontrado.';
+            optionsContainer.innerHTML = '';
+        }
+
+        function contarPruebas() {
+            let count = 0;
+            if (state.inventory.cartaSilvia) count++;
+            if (state.inventory.informeToxico) count++;
+            if (state.inventory.transferencias) count++;
+            if (state.inventory.mensajesMovil) count++;
+            if (state.inventory.reciboXilacina) count++;
+            if (state.inventory.cartaVicente) count++;
+            return count;
+        }
+
+        const chapters = {
+            1: {
+                title: 'LA LLAMADA DE BARCELONA',
+                text: 'Boston, Massachusetts. Despacho del FBI. 10 de marzo de 2025. 9:15 AM.\n\nEl agente especial Daniel Cross llevaba semanas sin casos importantes cuando el teléfono sonó. Número internacional. De España.\n\n—¿Agente Cross? —la voz era de hombre, grave, con acento español—. Me llamo Ignacio Vidal. Soy detective de los Mossos d\'Esquadra en Barcelona. Necesito su ayuda.\n\nDaniel se enderezó en la silla.\n\n—Dígame.\n\n—Tenemos un caso complicado. Un arquitecto, Jordi Costa, murió en accidente de coche hace tres meses. Oficialmente cerrado. Pero su madre no descansa. Y ahora ha aparecido un periodista muerto, Mateo Vidal, que estaba investigando el caso.\n\n—¿Conexión?\n\n—Los análisis de sangre. Ambos tenían el mismo compuesto. Un sedante veterinario llamado Xilacina. Alguien los drogó antes de morir.\n\nDaniel frunció el ceño.\n\n—¿Y qué quiere de mí?\n\n—Experiencia. El FBI tiene recursos que nosotros no. Y necesito a alguien que mire este caso con ojos nuevos. Sin ataduras locales. Sin presiones políticas.\n\n—¿Presiones?\n\n—La constructora Prometeo. Jordi Costa trabajaba para ellos. Mateo los estaba investigando por sobornos. Gente poderosa, agente Cross. Gente que no quiere que esto se destape.\n\nDaniel dudó un momento.\n\n—Tengo que consultarlo con mi superior.\n\n—Claro. Pero si decide venir, llámeme a este número. El tiempo corre.\n\nDaniel colgó y marcó el número de María Torres. La periodista freelance que le había ayudado en casos anteriores. Era rápida, inteligente y no le tenía miedo a nada.\n\n—¿Daniel? —respondió ella—. Hace semanas que no sé de ti.\n\n—¿Tienes el pasaporte a mano?\n\n—¿Por qué?\n\n—Barcelona. Doble asesinato. Sedante veterinario. Constructora corrupta. Y un detective local que necesita ojos nuevos.\n\n—Suena a reportaje.\n\n—Suena a trabajo.\n\n—¿Cuándo sales?\n\n—En cuatro horas.\n\n—Te veo en el aeropuerto.',
+                options: [
+                    { text: '✈️ Viajar a Barcelona con María', tiempo: 6, next: 2 },
+                    { text: '📞 Llamar a tu hermana Sarah antes', tiempo: 1, next: 2 },
+                    { text: '🔍 Investigar a Ignacio Vidal desde Boston', tiempo: 3, next: 2 }
+                ]
+            },
+            2: {
+                title: 'LA LLEGADA',
+                text: 'Barcelona, 12 de marzo de 2025. 11:30 AM. Aeropuerto de El Prat.\n\nDaniel y María cruzaron la puerta de llegadas y vieron a un hombre con una placa esperándoles. Cincuenta años, aspecto cansado, ojos inteligentes.\n\n—Agente Cross —dijo, tendiendo la mano—. Ignacio Vidal. Gracias por venir.\n\n—Ella es María Torres —dijo Daniel—. Periodista. Ha trabajado conmigo antes.\n\nVidal asintió.\n\n—Bien. Necesitaremos toda la ayuda posible. ¿Han comido algo?\n\n—Directo al grano, detective —dijo Daniel—. ¿Qué tenemos?\n\n—Dos muertos. Jordi Costa, arquitecto de Prometeo, fallecido en accidente de tráfico hace tres meses. Y Mateo Vidal, periodista, aparecido muerto en su piso hace una semana. Sin relación familiar conmigo, aunque compartamos apellido.\n\n—¿Las autopsias?\n\n—Ambos tenían Xilacina en sangre. Un sedante de uso veterinario. Inusual en humanos. Y en ambos casos, las dosis eran suficientes para dejarles inconscientes.\n\n—¿Alguien los drogó antes de matarlos?\n\n—Eso creemos. Pero oficialmente, el caso de Jordi está cerrado como accidente. Y el de Mateo, como suicidio. Nadie quiere reabrirlos.\n\n—¿Por qué?\n\n—Porque Prometeo es muy poderosa. Contratos con el ayuntamiento, con la Generalitat, con media Barcelona. Si esto sale a la luz, caen muchos nombres.\n\nMaría tomaba notas sin dejar de mirar a Vidal.\n\n—¿Por dónde empezamos? —preguntó.\n\n—Yo empezaría por el piso de Mateo. Aún está precintado. Y por hablar con la madre de Jordi. Ella ha sido la que más ha presionado para que se investigue.',
+                options: [
+                    { text: '🏢 Ir al piso de Mateo', tiempo: 2, next: 3 },
+                    { text: '👵 Hablar con Mercè Costa (madre de Jordi)', tiempo: 2, next: 4 },
+                    { text: '🔍 Ver los informes de Vidal primero', tiempo: 1, next: 5 }
+                ]
+            },
+            3: {
+                title: 'EL PISO DE MATEO',
+                text: 'Barcelona, 12 de marzo. 2:00 PM. Calle de la Diputación, 243.\n\nEl piso de Mateo olía a cerrado, a muerte reciente, a papel viejo. Daniel recorrió las habitaciones mientras Vidal explicaba.\n\n—Era meticuloso. Guardaba todo. Sus investigaciones, sus entrevistas, sus sospechas.\n\nEn el dormitorio, Daniel encontró una libreta en la mesilla. La abrió. Las últimas páginas estaban escritas con letra temblorosa.\n\n"Hoy hablé con Mercè. Me enseñó los papeles de Jordi. Alguien lo drogó antes del accidente. Voy a investigar a Prometeo. Van a pagar por lo que hicieron."\n\nY más abajo, una entrada diferente:\n\n"Vicente me ha amenazado. Dice que si publico lo de Prometeo, arruinará mi carrera. No sé hasta dónde es capaz de llegar."\n\nDaniel guardó la libreta.\n\n—¿Quién es Vicente? —preguntó.\n\n—Vicente Márquez —respondió Vidal—. El editor del periódico donde trabajaba Mateo. También... también fue su pareja. Durante un tiempo.\n\n—¿Sabe algo de esto?\n\n—No lo sé. Pero podemos preguntarle.\n\nEn el cajón de la mesilla, junto a la cama, María encontró una carta. Estaba arrugada, como si la hubieran tirado y luego recuperado.\n\nEra de Silvia, la exmujer de Mateo.\n\n"Mateo: Te lo pido por última vez. Deja de investigar. Vicente me ha llamado. Está furioso. Tiene contactos, dinero, poder. No sé de qué es capaz, pero tengo miedo. Por ti. Por mí. Por favor, déjalo."\n\n—Esto es importante —dijo Daniel—. Una amenaza directa.',
+                options: [
+                    { text: '👩 Hablar con Silvia', tiempo: 2, next: 6 },
+                    { text: '📰 Hablar con Vicente Márquez', tiempo: 2, next: 7 },
+                    { text: '🔍 Seguir registrando el piso', tiempo: 3, next: 3 }
+                ],
+                onEnter: () => { addItem('cartaSilvia'); }
+            },
+            4: {
+                title: 'LA MADRE DEL ARQUITECTO',
+                text: 'Barcelona, 12 de marzo. 4:30 PM. Barrio de Sarrià.\n\nMercè Costa vivía sola en un piso amplio, demasiado grande para una persona. Tenía sesenta años, el pelo cano, y una expresión de duelo reciente mal disimulado.\n\n—Gracias por venir —dijo, sirviendo café—. Nadie más quiso escucharme.\n\n—Cuénteme lo que sabe, señora Costa.\n\n—Mi hijo era meticuloso. Apuntaba todo. Sus proyectos, sus reuniones, sus sospechas. Los últimos meses, escribía mucho. Y siempre lo mismo: "Me vigilan." "Me siguen." "No sé quién, pero me vigilan."\n\n—¿Tenía enemigos?\n\n—En el trabajo, sí. Prometeo es una empresa muy competitiva. Jordi había descubierto algo. Algo sobre sobornos. Iba a denunciar.\n\n—¿A quién?\n\n—A su socio, Enric Font. Y a otros. Gente del ayuntamiento.\n\n—¿Y qué pasó?\n\n—El accidente. Una semana antes de denunciar. La policía dijo que se salió de la carretera. Que iba demasiado rápido. Pero Jordi no conducía rápido. Era prudente. Alguien lo drogó.\n\n—¿Tiene pruebas?\n\nMercè fue a una habitación y volvió con una carpeta.\n\n—Los informes médicos. Los análisis de sangre que le hicieron en el hospital. Tiene Xilacina. Un sedante de animales. ¿Qué hacía eso en la sangre de mi hijo?',
+                options: [
+                    { text: '📂 Recoger los informes', tiempo: 1, next: 5 },
+                    { text: '🔍 Preguntar por Enric Font', tiempo: 2, next: 8 },
+                    { text: '🏥 Ir al hospital', tiempo: 2, next: 9 }
+                ],
+                onEnter: () => { addItem('informeToxico'); }
+            },
+            5: {
+                title: 'LOS INFORMES',
+                text: 'Barcelona, 12 de marzo. 6:00 PM. Comisaría de los Mossos.\n\nVidal les mostró los informes oficiales en su despacho. Daniel los examinó con atención.\n\nEl informe de Jordi Costa: accidente de tráfico. El toxicólogo mencionaba "presencia de compuesto no identificado" en la sangre, pero lo atribuía a medicación que el arquitecto pudiera estar tomando.\n\nEl informe de Mateo Vidal: suicidio por sobredosis. Pero las fotografías mostraban algo que Daniel conocía bien: pequeñas marcas en el cuello. Como de agujas. O de mordeduras.\n\n—Esto no es un suicidio —dijo Daniel—. Lo inmovilizaron con la Xilacina y luego... luego le inyectaron algo más.\n\n—¿El qué?\n\n—No lo sé. Pero la Xilacina es la clave. Alguien la compró, la tuvo en su poder, la usó.\n\n—He investigado —dijo Vidal—. La Xilacina es de uso veterinario. Solo se vende con receta. Y hay un único distribuidor en Cataluña. Una farmacia veterinaria en el puerto.\n\n—¿Podemos conseguir los registros de venta?\n\n—Ya lo hice. Vendieron Xilacina a varias clínicas y particulares. Pero hay una compra que me llamó la atención. Hace cuatro meses. Un particular. Pagó en efectivo. Dio un nombre falso.\n\n—¿Cómo lo sabe?\n\n—Porque el nombre que dio era "Jordi Costa". Pero Jordi Costa estaba muerto una semana después. No pudo comprarlo él mismo.',
+                options: [
+                    { text: '🚢 Ir a la farmacia veterinaria', tiempo: 2, next: 10 },
+                    { text: '👤 Investigar a Enric Font', tiempo: 2, next: 8 },
+                    { text: '📰 Ir al periódico', tiempo: 2, next: 7 }
+                ]
+            },
+            6: {
+                title: 'LA EXMUJER',
+                text: 'Barcelona, 13 de marzo. 11:00 AM. Café del Eixample.\n\nSilvia llegó puntual. Cuarenta años, morena, bien vestida, con ojeras profundas. Aceptó un café y lo dejó enfriar sin beberlo.\n\n—Mateo y yo nos divorciamos hace cinco años —dijo—. Pero manteníamos contacto. Era el padre de mi hija.\n\n—¿Cuándo habló con él por última vez?\n\n—Una semana antes de morir. Estaba asustado. Me dijo que había descubierto algo grande. Algo sobre la muerte de un arquitecto, Jordi Costa.\n\n—¿Le dijo qué?\n\n—Que no era accidente. Que lo habían matado. Y que el asesino era alguien cercano a él.\n\n—¿Alguien cercano?\n\nSilvia dudó. Miró su café, luego la calle, luego sus manos.\n\n—Vicente. Vicente Márquez. El editor de su periódico. Tuvieron una relación mientras estábamos casados. Mateo la dejó, pero Vicente no lo superó. Le escribía cartas, le llamaba, le acosaba. Y cuando Mateo empezó a investigar a Prometeo, Vicente intentó detenerlo.\n\n—¿Cómo?\n\n—Le ofreció dinero, un ascenso, lo que fuera. Mateo no aceptó. Entonces empezaron las amenazas. "Si publicas eso, te arruino." "No volverás a trabajar en este país."\n\n—¿Cree que Vicente pudo matarlo?\n\n—No lo sé. Pero algo me dice que no es tan inocente como parece. La última vez que hablé con Mateo, me dijo: "Si me pasa algo, busca en la taquilla 089 de la Estación de Francia."',
+                options: [
+                    { text: '🚉 Ir a la taquilla 089', tiempo: 2, next: 11 },
+                    { text: '📰 Ir al periódico a ver a Vicente', tiempo: 2, next: 7 },
+                    { text: '🔍 Volver al piso de Mateo', tiempo: 2, next: 3 }
+                ]
+            },
+            7: {
+                title: 'EL EDITOR',
+                text: 'Barcelona, 13 de marzo. 4:00 PM. Redacción de El Cronista.\n\nVicente Márquez era un hombre de cincuenta años, elegante, con una sonrisa que no llegaba a los ojos. Recibió a Daniel en su despacho con amabilidad profesional.\n\n—Agente Cross —dijo—. ¿FBI en mi periódico? Qué sorpresa.\n\n—Investigo la muerte de Mateo Vidal.\n\nLa sonrisa se tensó.\n\n—Terrible lo de Mateo. Un gran periodista. Le ofrecí todo lo que pude, pero... bueno, ya sabe, los problemas personales...\n\n—¿Qué problemas?\n\n—Estaba obsesionado. Con una historia. Una historia que no existía. Conspiraciones, sobornos, cosas así. Le dije que lo dejara, que se tomara unas vacaciones. No quiso.\n\n—¿Y usted mantuvo una relación con él?\n\nEl silencio se alargó.\n\n—Eso es asunto privado.\n\n—No cuando alguien está muerto.\n\nVicente se levantó.\n\n—Creo que esta conversación ha terminado.\n\n—Una última pregunta —dijo Daniel—. ¿Dónde estaba usted la noche que murió Mateo?\n\n—En mi casa. Solo. Viendo la televisión.\n\n—¿Alguien puede confirmarlo?\n\n—No. Vivo solo.\n\nCuando salían del despacho, María señaló discretamente un papel en la mesa de Vicente. Era un recibo. De una farmacia veterinaria.\n\n—¿Ha visto eso? —susurró—. Una farmacia de animales.',
+                options: [
+                    { text: '🔍 Registrar el despacho de Vicente', tiempo: 3, next: 12 },
+                    { text: '🚢 Ir a la farmacia veterinaria', tiempo: 2, next: 10 },
+                    { text: '👤 Seguir a Vicente', tiempo: 2, next: 13 }
+                ]
+            },
+            8: {
+                title: 'EL SOCIO',
+                text: 'Barcelona, 14 de marzo. 10:00 AM. Sede de Prometeo.\n\nEnric Font era un hombre de cuarenta y cinco años, traje caro, sonrisa de político. Demasiado perfecto.\n\n—Agente Cross —dijo, tendiendo la mano—. ¿En qué puedo ayudarle?\n\n—Jordi Costa. Era su socio, ¿no?\n\n—Sí. Un gran profesional. Una pérdida terrible.\n\n—¿Sabía que estaba investigando algo? ¿Algo relacionado con la empresa?\n\n—Jordi siempre investigaba. Era meticuloso. Pero todo dentro de lo profesional. Proyectos, materiales, normativas.\n\n—¿Y los sobornos?\n\nLa sonrisa de Enric se congeló.\n\n—No sé de qué habla.\n\n—Jordi había descubierto algo. Iba a denunciar. Y una semana después, murió.\n\n—Fue un accidente.\n\n—Con Xilacina en la sangre.\n\nEnric pestañeó. Solo una vez.\n\n—No sé nada de eso.\n\n—¿Dónde estaba usted la noche del accidente?\n\n—En mi casa. Con mi mujer.\n\n—¿Puede confirmarlo ella?\n\n—Sí.\n\nMaría tomaba notas.\n\n—¿Y qué sabe de Mateo Vidal, el periodista que investigaba el caso?\n\n—Nada. Nunca hablé con él.\n\n—¿Nunca?\n\n—Nunca.\n\nCuando salieron, María dijo:\n\n—Miente. He visto su nombre en los papeles de Mateo. Aparecía en una lista de contactos.',
+                options: [
+                    { text: '🔍 Presionar más a Enric', tiempo: 2, next: 8 },
+                    { text: '🚉 Ir a la taquilla 089', tiempo: 2, next: 11 },
+                    { text: '🏠 Investigar la coartada de Enric', tiempo: 3, next: 14 }
+                ]
+            },
+            9: {
+                title: 'EL HOSPITAL',
+                text: 'Barcelona, 14 de marzo. 12:30 PM. Hospital Clínic.\n\nLa doctora Anna Rius era la jefa de toxicología. Una mujer seria, con mirada inteligente.\n\n—El detective Vidal me dijo que vendrían —dijo—. Supongo que es por el caso Costa.\n\n—Sí. Usted hizo los análisis.\n\n—Encontré Xilacina en su sangre. Un sedante veterinario. Se lo dije a la policía, pero no quisieron seguir investigando. Accidente, dijeron. Caso cerrado.\n\n—¿Y usted qué cree?\n\n—Que alguien lo drogó. La dosis era suficiente para dejarlo inconsciente. Perdió el control del coche. Pero antes de eso, alguien tuvo que inyectarle o hacerle ingerir la sustancia.\n\n—¿Guardó las muestras?\n\n—Sí. Las guardé. Por si alguien preguntaba algún día.\n\n—Alguien pregunta ahora.\n\nAnna Rius fue a un congelador y sacó un pequeño tubo de ensayo.\n\n—Aquí tiene. La sangre de Jordi Costa. Con la Xilacina.\n\nDaniel guardó el tubo con cuidado.\n\n—Gracias, doctora.\n\n—Que atrapen al culpable, agente. Ese chico no merecía morir así.',
+                options: [
+                    { text: '🚉 Ir a la taquilla 089', tiempo: 2, next: 11 },
+                    { text: '📰 Volver al periódico', tiempo: 2, next: 7 },
+                    { text: '🔍 Analizar las muestras', tiempo: 3, next: 9 }
+                ]
+            },
+            10: {
+                title: 'LA FARMACIA VETERINARIA',
+                text: 'Barcelona, 14 de marzo. 5:00 PM. Puerto de Barcelona.\n\nLa farmacia veterinaria estaba en una calle estrecha cerca del puerto. El dueño, un hombre mayor con gafas, los recibió con desconfianza.\n\n—La policía ya vino —dijo—. Preguntando por la Xilacina.\n\n—Necesitamos los registros de venta —dijo Daniel.\n\n—Ya se los di.\n\n—Quiero verlos yo mismo.\n\nEl hombre suspiró y sacó un libro de registro. Daniel lo hojeó. Encontró la entrada: 15 de noviembre. Venta de Xilacina. Comprador: Jordi Costa. DNI: 12345678A.\n\n—¿Comprobó el DNI?\n\n—No. Pagó en efectivo. No había motivo para desconfiar.\n\n—¿Reconoce a este hombre? —Daniel mostró una foto de Jordi Costa.\n\n—No. El que vino no era él. Era más joven. Más... nervioso.\n\n—¿Podría describirlo?\n\n—Unos cincuenta años. Bien vestido. Traje caro. Muy educado, pero tenía algo raro en la mirada.\n\nMaría mostró una foto de Vicente Márquez.\n\n—¿Es este?\n\nEl farmacéutico la miró largamente.\n\n—Podría ser. Sí, podría ser. La misma cara, la misma expresión.',
+                options: [
+                    { text: '🔍 Registrar la farmacia', tiempo: 2, next: 10 },
+                    { text: '📞 Llamar a Vidal con la información', tiempo: 1, next: 13 },
+                    { text: '🏢 Ir a casa de Vicente', tiempo: 2, next: 15 }
+                ],
+                onEnter: () => { addItem('reciboXilacina'); }
+            },
+            11: {
+                title: 'LA TAQUILLA 089',
+                text: 'Barcelona, 15 de marzo. 10:00 AM. Estación de Francia.\n\nCon la llave que Silvia les había dado, abrieron la taquilla 089. Dentro había una carpeta marrón, gruesa.\n\nDaniel la abrió sobre un banco cercano. Documentos, fotografías, informes.\n\n—La investigación de Mateo —dijo María—. Completa.\n\nHabía copias de las transferencias bancarias de Prometeo a paraísos fiscales. Nombres de políticos. Fechas. Cantidades. Y al lado, anotaciones de Mateo: "Vicente sabe esto. Él me consiguió estos documentos. Pero ahora me amenaza. Quiere que pare."\n\nTambién había una fotografía. Un grupo de personas en una cena de empresa. Mendoza, Enric Font, Vicente Márquez, y otros. Al dorso, escrito a mano: "Cena de Prometeo, 10 de octubre. Vicente con los peces gordos."\n\n—Vicente estaba implicado —dijo Daniel—. No solo lo sabía. Estaba dentro.\n\n—¿Crees que mató a Jordi para protegerlos?\n\n—O por otra razón. Celos, quizá. Amor. Obsesión.\n\nEntre los papeles, encontraron una carta de amor de Vicente a Mateo, nunca enviada. Decía: "Si no puedes ser mío, no serás de nadie."\n\n—Prueba —dijo María—. Prueba de que tenía un motivo.',
+                options: [
+                    { text: '🏢 Ir a casa de Vicente', tiempo: 2, next: 15 },
+                    { text: '📰 Enfrentar a Vicente en el periódico', tiempo: 2, next: 12 },
+                    { text: '🔍 Seguir investigando', tiempo: 3, next: 11 }
+                ],
+                onEnter: () => { addItem('transferencias'); addItem('cartaVicente'); }
+            },
+            12: {
+                title: 'EL ENFRENTAMIENTO',
+                text: 'Barcelona, 15 de marzo. 4:00 PM. Redacción de El Cronista.\n\nDaniel entró en el despacho de Vicente sin llamar. María y Vidal lo seguían.\n\n—Vicente Márquez, está detenido.\n\nVicente palideció.\n\n—¿Por qué? ¿De qué me acusan?\n\n—Doble asesinato. Jordi Costa y Mateo Vidal.\n\n—Están locos. No tengo nada que ver con eso.\n\n—¿Entonces por qué su recibo de compra de Xilacina apareció en una farmacia del puerto?\n\n—¿Mi recibo? Eso es falso.\n\n—El farmacéutico lo identificó.\n\n—Se equivoca.\n\n—Y la carta que le escribió a Mateo. "Si no puedes ser mío, no serás de nadie."\n\nVicente enmudeció.\n\n—Mateo lo estaba dejando, ¿verdad? Había terminado la relación. Y usted no lo soportó. Cuando descubrió que investigaba a Prometeo, vio la oportunidad. Podía matar dos pájaros de un tiro. Eliminar a Jordi Costa, que era un problema para la empresa, y vengarse de Mateo haciéndole daño.\n\n—No, yo...\n\n—Pero Mateo descubrió la verdad. Que usted había matado a Jordi. Y entonces tuvo que matarlo también a él.\n\nVicente rompió a llorar.\n\n—Yo no quería... no quería matarlo. Pero él iba a denunciarme. Iba a contarlo todo.\n\n—Así que lo drogó con Xilacina y lo mató.\n\n—Sí —susurró—. Sí, lo hice.',
+                options: [
+                    { text: '🔒 Detener a Vicente', tiempo: 1, next: 16 },
+                    { text: '🔍 Registrar su casa', tiempo: 2, next: 15 },
+                    { text: '📝 Tomar declaración', tiempo: 2, next: 16 }
+                ]
+            },
+            13: {
+                title: 'LA SOMBRA',
+                text: 'Barcelona, 15 de marzo. 8:00 PM. Calle del Puertor.\n\nDaniel y María siguieron a Vicente desde el periódico. El editor caminaba nervioso, mirando atrás constantemente. Llegó a una casa vieja en el barrio gótico. Sacó una llave y entró.\n\n—¿Su casa? —preguntó María.\n\n—Parece que no.\n\nEsperaron veinte minutos. Luego decidieron entrar.\n\nLa puerta estaba sin cerrar. Dentro, la casa estaba vacía, pero en el sótano encontraron algo: un pequeño laboratorio. Jeringuillas, frascos, y una caja de Xilacina.\n\n—Aquí preparaba las dosis —dijo Daniel.\n\nEn una mesa, una libreta. Daniel la abrió.\n\nEra un diario. Los últimos meses de Vicente. Sus obsesiones, sus planes, sus crímenes.\n\n"15 de noviembre. Compré la Xilacina. Usé el nombre de Jordi. Nadie lo comprobará."\n\n"20 de noviembre. Lo hice. Lo esperé en la cuneta, le pedí que parara. Dijo que tenía prisa, pero accedió. Le ofrecí un café. La Xilacina tardó diez minutos en hacer efecto. Luego lo cambié de asiento y pisé el acelerador. El coche se estrelló contra el árbol. Parecía un accidente."\n\n"5 de diciembre. Mateo me ha llamado. Sabe algo. Está investigando. Tengo que detenerlo."\n\n"10 de diciembre. No pude. Lo maté. Lo siento, lo siento, lo siento. Pero no podía dejar que lo contara."',
+                options: [
+                    { text: '🔒 Detener a Vicente', tiempo: 2, next: 16 },
+                    { text: '📞 Llamar a Vidal', tiempo: 1, next: 16 },
+                    { text: '🔍 Registrar el laboratorio', tiempo: 2, next: 13 }
+                ],
+                onEnter: () => { addItem('reciboXilacina'); addItem('cartaVicente'); }
+            },
+            14: {
+                title: 'LA COARTADA',
+                text: 'Barcelona, 16 de marzo. 11:00 AM. Domicilio de Enric Font.\n\nLa mujer de Enric, una mujer rubia de aspecto cansado, les abrió la puerta.\n\n—¿Su marido estaba en casa la noche del accidente de Jordi Costa?\n\nElla dudó.\n\n—Sí. Estaba.\n\n—¿Toda la noche?\n\nOtra duda.\n\n—Bueno... se fue un rato. Dijo que iba a comprar tabaco. Estuvo fuera como una hora.\n\n—¿A qué hora?\n\n—Sobre las diez.\n\n—El accidente fue a las once.\n\n—No lo sé. No quiero meterme en líos.\n\n—Señora, su marido podría estar implicado en un asesinato.\n\nElla rompió a llorar.\n\n—Él no mató a nadie. Lo sé. Pero me pidió que dijera que estaba aquí. Dijo que si no lo hacía, nos arruinaríamos. Que la empresa... que los negocios...\n\n—¿Dónde estuvo realmente?\n\n—Con una amante. Tiene una amante. Me lo confesó después. Por eso no quería que se supiera.',
+                options: [
+                    { text: '🔍 Descartar a Enric', tiempo: 1, next: 15 },
+                    { text: '📞 Llamar a la amante', tiempo: 2, next: 14 },
+                    { text: '🏢 Volver a Prometeo', tiempo: 2, next: 8 }
+                ],
+                onEnter: () => { state.pistas.enricDescartado = true; }
+            },
+            15: {
+                title: 'EL PISO DE VICENTE',
+                text: 'Barcelona, 16 de marzo. 4:00 PM. Piso de Vicente Márquez.\n\nCon una orden judicial, registraron el piso de Vicente. Era moderno, limpio, ordenado. Demasiado ordenado.\n\nEn el dormitorio, bajo la cama, encontraron una caja. Dentro, jeringuillas usadas, frascos de medicamentos, y una libreta.\n\nDaniel abrió la libreta. Era el mismo diario que habían encontrado en el sótano.\n\n—Aquí está —dijo—. La confesión completa.\n\nEn la mesilla, una fotografía. Vicente y Mateo, abrazados, sonriendo. Más jóvenes. Más felices.\n\n—¿Por qué lo hizo? —preguntó María.\n\n—Obsesión. Amor. Odio. Todo junto.\n\nEn el cajón, una carta sin enviar. La última que Vicente escribió a Mateo.\n\n"Mateo: Aún estoy a tiempo de arreglarlo. Si dejas la investigación, si vuelves conmigo, podemos olvidarlo todo. Pero si no... no me dejas elección."\n\n—Prueba definitiva —dijo Daniel.',
+                options: [
+                    { text: '🔒 Detener a Vicente', tiempo: 1, next: 16 },
+                    { text: '🔍 Buscar más pruebas', tiempo: 2, next: 15 },
+                    { text: '📞 Llamar a Vidal', tiempo: 1, next: 16 }
+                ],
+                onEnter: () => { addItem('cartaVicente'); }
+            },
+            16: {
+                title: 'LA DETENCIÓN',
+                text: 'Barcelona, 17 de marzo. 9:00 AM. Comisaría.\n\nVicente Márquez confesó. Todo. La compra de la Xilacina, el asesinato de Jordi Costa, el asesinato de Mateo Vidal.\n\n—Lo hice por amor —dijo, entre lágrimas—. Y por miedo. Mateo iba a destrozarlo todo.\n\n—Mató a un inocente.\n\n—Jordi no era inocente. Estaba en el ajo. Sabía lo de los sobornos, los había firmado. Solo que luego le entraron remordimientos.\n\n—Y usted decidió callarlo.\n\n—Sí.\n\n—¿Y Mateo?\n\n—Mateo... Mateo era diferente. Lo quería. Pero no podía dejarme. Iba a denunciarme. No tuve elección.\n\nDaniel lo miró largamente.\n\n—Siempre hay elección.\n\nVicente bajó la cabeza.\n\n—Lo sé. Y elegí mal.',
+                options: [
+                    { text: '📝 Cerrar el caso', tiempo: 1, next: 17 },
+                    { text: '🔍 Verificar la confesión', tiempo: 2, next: 16 },
+                    { text: '📞 Llamar al juzgado', tiempo: 1, next: 17 }
+                ]
+            },
+            17: {
+                title: 'EL CIERRE',
+                text: 'Barcelona, 30 de marzo. Comisaría.\n\nVicente Márquez fue procesado por dos asesinatos. Las pruebas eran abrumadoras: la carta, el recibo de la Xilacina, las transferencias bancarias, los mensajes de móvil, el testimonio de Silvia, el diario.\n\nEnric Font fue imputado por corrupción y sobornos. Prometeo, intervenida. Varios políticos, salpicados.\n\nMercè Costa, la madre de Jordi, pudo por fin enterrar a su hijo en paz.\n\n—Gracias —le dijo a Daniel—. Gracias por no olvidarlo.\n\nSilvia, la exmujer de Mateo, escribió una carta a Daniel.\n\n"Mateo descansa ahora. Sé que desde donde esté, está agradecido."\n\nDaniel y María prepararon el regreso a Boston.\n\n—Buen trabajo —dijo María—. Dos asesinatos resueltos.\n\n—Tú también hiciste lo tuyo.\n\n—¿Crees que hay más casos como este?\n\n—Siempre los hay. En todas partes.\n\n—¿Y nosotros?\n\n—Nosotros seguiremos. Cuando llamen, iremos.',
+                options: [
+                    { text: '📖 LEER EPÍLOGO', next: 18 }
+                ]
+            },
+            18: {
+                title: 'EPÍLOGO · JUSTICIA',
+                text: 'Barcelona, 30 de junio de 2025. Juzgados.\n\nSeis meses después, Daniel y María regresaron a Barcelona para el juicio.\n\nVicente Márquez fue condenado a veintidós años de prisión. Enric Font, a ocho años por corrupción. Prometeo, desmantelada.\n\n—Veintidós años —dijo María, leyendo la sentencia—. No es suficiente para dos vidas.\n\n—Nunca lo es.\n\nSalieron del juzgado. El sol de primavera calentaba las calles de Barcelona. La ciudad seguía igual, pero algo había cambiado.\n\n—¿Y ahora qué? —preguntó María.\n\n—Ahora, a casa. Sarah me espera para cenar.\n\n—¿Y después?\n\nDaniel miró el horizonte. El móvil vibró. Un nuevo mensaje. Un nuevo caso.\n\n—Después, quien sabe. Siempre hay alguien que necesita ayuda.\n\nCaminaron hacia el aeropuerto. El caso estaba cerrado. La justicia, hecha.\n\nFIN',
+                options: [
+                    { text: '🔁 VOLVER A EMPEZAR', final: true }
+                ]
+            }
+        };
+
+        function loadChapter(step) {
+            if (state.tiempo <= 0) {
+                showTimeOut();
+                return;
+            }
+            if (state.health <= 0) {
+                showGameOver();
+                return;
+            }
+
+            const chap = chapters[step];
+            if (!chap) return;
+
+            chapterDisplay.innerText = chap.title;
+            novelText.innerText = chap.text;
+            if (chap.onEnter) chap.onEnter();
+
+            optionsContainer.innerHTML = '';
+            chap.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.innerText = opt.text;
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (opt.tiempo) restarTiempo(opt.tiempo);
+                    
+                    if (state.tiempo <= 0) {
+                        showTimeOut();
+                        return;
+                    }
+                    if (state.health <= 0) return;
+
+                    if (opt.final) {
+                        restartGame();
+                        return;
+                    }
+
+                    const nextStep = opt.next !== undefined ? opt.next : step + 1;
+                    state.step = nextStep;
+                    loadChapter(state.step);
+                });
+                optionsContainer.appendChild(btn);
+            });
+
+            updateUI();
+            inventoryPanel.classList.remove('visible');
+        }
+
+        function restartGame() {
+            state = {
+                health: 100,
+                maxHealth: 100,
+                tiempo: 168,
+                step: 1,
+                inventory: {
+                    cartaSilvia: false,
+                    informeToxico: false,
+                    transferencias: false,
+                    mensajesMovil: false,
+                    reciboXilacina: false,
+                    cartaVicente: false
+                },
+                pistas: {
+                    silviaHablado: false,
+                    vidalContactado: false,
+                    enricDescartado: false
+                }
+            };
+            loadChapter(1);
+        }
+
+        restartBtn.addEventListener('click', restartGame);
+        loadChapter(1);
+    })();
+</script>
+</body>
+</html>
